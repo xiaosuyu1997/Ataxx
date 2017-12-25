@@ -1,8 +1,8 @@
 #include"test.h"
 using namespace std;
 
-int Min(int qipan_1[7][7], int start, int depth);
-int Max(int qipan_1[7][7], int start, int depth);
+int Min(int qipan_1[7][7], int start, int depth,int, int);
+int Max(int qipan_1[7][7], int start, int depth, int, int);
 int estimate(int start, int qipan_1[7][7]);
 
 struct mov{
@@ -30,10 +30,13 @@ void change_color(int start_x, int start_y, int des_x, int des_y, int qipan_1[7]
 {
 	if (max(abs(start_x - des_x), abs(start_y - des_y)) == 2) qipan_1[start_x][start_y] = 0;
 	qipan_1[des_x][des_y] = start;
-	for (int i = -1; i <= 1 && des_x + i >= 0 && des_x + i <= 6; i++)
+	for (int i = -1; i <= 1 && des_x + i >= 0; i++)
 	{
-		for (int j = -1; j <= 1 && des_y + j >= 0 && des_y + j <= 6; j++)
+		for (int j = -1; j <= 1 && des_y + j >= 0; j++)
 		{
+			if (i == 0 && j == 0) continue;
+			if (des_x + i < 0 || des_x + i >6 || des_y + j < 0 || des_y + j>6) continue;
+			
 			if (qipan_1[des_x + i][des_y + j] == -start)
 				qipan_1[des_x + i][des_y + j] = start;
 		}
@@ -47,7 +50,8 @@ mov minimax(int depth, int start)
 	int qipan_1[7][7] = { 0 };
 	set(qipan_1, qipan);
 
-	int best_val = -5000;
+	int this_a = -5000;
+	int this_b = -5000;
 	mov best_move;
 	for (int i = 0; i < 7; i++)
 		for (int j = 0; j < 7; j++)
@@ -70,10 +74,10 @@ mov minimax(int depth, int start)
 						change_color(i, j, i + m, j + n, qipan_1, start);
 
 						//调用下一层；
-						int t = Min(qipan_1, -start, depth - 1);
-						if (t > best_val)
+						int t = Min(qipan_1, -start, depth - 1,this_a,this_b);
+						if (t > this_a)
 						{
-							best_val = t;
+							this_a = t;
 							best_move = { i,j,i + m,j + n };
 						}
 
@@ -87,7 +91,7 @@ mov minimax(int depth, int start)
 }
 
 
-int Max(int qipan_1[7][7], int start, int depth)
+int Max(int qipan_1[7][7], int start, int depth,int a,int b)
 {
 	if (depth == 0) return estimate(start, qipan_1);
 	
@@ -95,6 +99,9 @@ int Max(int qipan_1[7][7], int start, int depth)
 	set(qipan_2, qipan_1);
 
 	int best_val = -5000;
+	int this_a = -5000;
+	int this_b = b;
+	bool flag = false;
 	for (int i = 0; i < 7; i++)
 		for (int j = 0; j < 7; j++)
 		{
@@ -116,29 +123,36 @@ int Max(int qipan_1[7][7], int start, int depth)
 						change_color(i, j, i + m, j + n, qipan_2, start);
 
 						//调用下一层；
-						int t = Min(qipan_2, -start, depth - 1);
-						if (t > best_val)
+						int t = Min(qipan_2, -start, depth - 1,this_a,this_b);
+						if (t > this_a) this_a = t;
+						if (this_a >= this_b)
 						{
-							best_val = t;
+							flag = true;
+							break;
 						}
 
 						//恢复棋盘状态；
 						set(qipan_2, qipan_1);
 					}
+					if (flag) break;
 				}
+				if (flag) break;
 			}
+			if (flag) break;
 		}
-	return best_val;
+	return this_a;
 }
 
-int Min(int qipan_1[7][7], int start, int depth)
+int Min(int qipan_1[7][7], int start, int depth, int a, int b)
 {
 	if (depth == 0) return estimate(start, qipan_1);
 
 	int qipan_2[7][7] = { 0 };
 	set(qipan_2, qipan_1);
 
-	int best_val = 5000;
+	int this_a = b;
+	int this_b = 5000;
+	bool flag = false;
 	for (int i = 0; i < 7; i++)
 		for (int j = 0; j < 7; j++)
 		{
@@ -160,25 +174,33 @@ int Min(int qipan_1[7][7], int start, int depth)
 						change_color(i, j, i + m, j + n, qipan_2, start);
 
 						//调用下一层；
-						int t = Max(qipan_2, -start, depth - 1);
-						if (t < best_val)
+						int t = Max(qipan_2, -start, depth - 1,this_a,this_b);
+						if (t < this_b)
 						{
-							best_val = t;
+							this_b = t;
+						}
+						if (this_a >= this_b)
+						{
+							flag = true;
+							break;
 						}
 
 						//恢复棋盘状态；
 						set(qipan_2, qipan_1);
 					}
+					if (flag) break;
 				}
+				if (flag) break;
 			}
+			if (flag) break;
 		}
-	return best_val;
+	return this_b;
 }
 
 
 void ai(int first, int next)
 {
-	mov t = minimax(2, first);
+	mov t = minimax(6, first);
 	change_color(t.from_x, t.from_y, t.to_x, t.to_y, qipan, first);
 	cnt_black = 0; cnt_white = 0;
 	for(int i=0;i<7;i++)
@@ -203,4 +225,3 @@ int estimate(int start, int qipan_1[7][7])
 		}
 	return sum;
 }
-

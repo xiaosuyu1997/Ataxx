@@ -111,7 +111,6 @@ int black_game()  //返回0代表继续，返回1代表返回主界面(只返回1)
 		if(game(1, -1)==1) return 1;
 		system("cls");
 		jiemian(-1);
-		Sleep(2000);
 		ai(-1, 1);
 		cnt_step++;
 	}
@@ -127,7 +126,6 @@ int white_game()  //返回0代表继续，返回1代表返回主界面
 		if (game(-1, 1) == 1) return 1;
 		system("cls");
 		jiemian(1);
-		Sleep(2000);
 		cnt_step++;
 	}
 }
