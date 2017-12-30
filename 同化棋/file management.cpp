@@ -8,16 +8,18 @@ void file_output(int first) //从游戏保存至文档
 	while (true)
 	{
 		system("cls");
-		printf("请输入你要选择保存的位置\n1  2  3\n");
-		int t = 0;
-		scanf("%d", &t);
-		if (t != 1 && t != 2 && t != 3) continue;
+		printf("请输入你要选择保存的位置\n1  2  3\n取消请输入\"c\"\n");
+		while (cin.peek() == '\n') getchar();
+		char t[100] = { '\0' };
+		cin.getline(t, 100);
+		if (t[0] == 'c') return;
+		if (t[0] != '1' && t[0] != '2' && t[0] != '3') continue;
 		ifstream infile;
-		switch (t)
+		switch (t[0])
 		{
-		case 1:infile.open("1.txt", ios::in); break;
-		case 2:infile.open("2.txt", ios::in); break;
-		case 3:infile.open("3.txt", ios::in); break;
+		case '1':infile.open("1.txt", ios::in); break;
+		case '2':infile.open("2.txt", ios::in); break;
+		case '3':infile.open("3.txt", ios::in); break;
 		}
 		int a = 0;
 		infile >> a;
@@ -32,11 +34,11 @@ void file_output(int first) //从游戏保存至文档
 		infile.close();
 
 		ofstream outfile;
-		switch (t)
+		switch (t[0])
 		{
-		case 1:outfile.open("1.txt", ios::out); break;
-		case 2:outfile.open("2.txt", ios::out); break;
-		case 3:outfile.open("3.txt", ios::out); break;
+		case '1':outfile.open("1.txt", ios::out); break;
+		case '2':outfile.open("2.txt", ios::out); break;
+		case '3':outfile.open("3.txt", ios::out); break;
 		}
 
 		outfile << 1 <<endl;//表示已经有读入；
@@ -51,6 +53,21 @@ void file_output(int first) //从游戏保存至文档
 			}
 			outfile << endl;
 		}
+
+		for (int m = 0; m <= cnt_step; m++)
+		{
+			for (int i = 0; i < 7; i++)
+			{
+				for (int j = 0; j < 7; j++)
+				{
+					outfile << cunpan[m][i][j] << " ";
+				}
+				outfile << endl;
+			}
+		}
+		
+		
+		outfile.close();
 		return;
 			
 	}
@@ -79,6 +96,17 @@ int file_input(int filename) //从文档读入游戏进度,返回当前执子方
 			infile >> qipan[i][j];
 		}
 
+	for (int m = 0; m <= cnt_step; m++)
+	{
+		for (int i = 0; i < 7; i++)
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				infile >> cunpan[m][i][j];
+			}
+		}
+	}
+	infile.close();
 	return first;
 	
 }

@@ -1,139 +1,301 @@
 #include"test.h"
-
-
 using namespace std;
 
 
-int game(int first, int next)  //返回0代表继续游戏，返回1代表回到主界面
+int game(int first)  //返回0代表继续游戏，返回1代表回到主界面
 {
-	
-	
-
-	//先要判断是否已经决定输赢
-	if (decide_win()) return 1;
-	
-	system("cls");
-	jiemian(first);
-
-
-	char start_x = 0;
-	char start_y = 0;
-	//先方下棋，1为执黑，-1为执白
-	char t = 0;
-	printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子\n");
-	char temp[100] = { '\0' };
 	while (true)
 	{
+		system("cls");
+		jiemian(first);
+
+		int start_x = 0, start_y = 0;
+		int des_x = 0, des_y = 0;
+
+
+		printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n悔棋请输入\"c\"\n");
+
 		while (true)
 		{
-			t = cin.peek();
-			if (t =='\n' || t==' ') getchar();
-			else break;
-		}
-		cin.getline(temp,1000);
-		if (temp[0] == 'r') return 1;
-		if (temp[0] == 's')
-		{
-			file_output(first);
-			return 1;
-		}
+			while (cin.peek() == '\n') getchar();
 
-		start_x = temp[0];
-		for (int i = 1; i < 100; i++) if (temp[i] <='7' && temp[i]>='1') { start_y = temp[i]; break; }
-		start_x -= '0' + 1;
-		start_y -= '0' + 1;
-		if (start_x <= 6 && start_x >= 0 && start_y >= 0 && start_y <= 6 && qipan[start_x][start_y] == first)
-		{
-			break;
-		}
-		else printf("Please retry.\n");
-	}
-
-	printf("请选择你要移动到的地方\n");
-	int des_x = 0, des_y = 0;
-	while (true)
-	{
-		scanf("%d%d", &des_x, &des_y);
-		des_x -= 1; des_y -= 1;
-		//判断1、在棋盘内；2、在十六格内；3、可以落子（目标地点为空）
-		if (decide_des_nextstep(first,start_x,start_y,des_x,des_y))
-		{
-			//16位的情况：
-			if (abs(des_x - start_x) == 2 || abs(des_y - start_y) == 2)
+			char temp[100] = { '\0' };
+			cin.getline(temp, 1000);
+			if (temp[0] != 'r' && temp[0] != 's' && temp[0] != 'c' && !(temp[0] <= '7' && temp[0] >= '1')) { printf("please retry\n"); continue;  }
+			if (temp[0] == 'r') return 1;
+			if (temp[0] == 's')
 			{
-				qipan[start_x][start_y] = 0;
-				qipan[des_x][des_y] = first;
+				file_output(first);
+				system("cls");
+				jiemian(first);
+				printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n悔棋请输入\"c\"\n");
+				continue;
 			}
-			//8位的情况：
-			else
-			{
-				qipan[des_x][des_y] = first;
-				if (first == 1) cnt_black++;
-				else cnt_white++;
-			}
-			for (int i = -1; i <= 1; i++)
-				for (int j = -1; j <= 1; j++)
+			if (temp[0] == 'c')
+				if (player == 1)
 				{
-					if (i == 0 && j == 0) continue;
-					if (des_x + i >= 0 && des_x + i < 7 && des_y + j >= 0 && des_y + j < 7 &&
-						qipan[des_x + i][des_y + j] == next)
+					if (cnt_step == 1)
 					{
-						qipan[des_x + i][des_y + j] = first;
-						if (first == 1) { cnt_black++; cnt_white--; }
-						else { cnt_white++; cnt_black--; }
+						printf("已经不能悔棋了\n");
+						printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n悔棋请输入\"c\"\n");
+						continue;
 					}
-						
+
+					cnt_step -= 1;
+					cnt_black = 0; cnt_white = 0;
+					for (int i = 0; i < 7; i++)
+						for (int j = 0; j < 7; j++)
+						{
+							qipan[i][j] = cunpan[cnt_step - 1][i][j];
+							if (qipan[i][j] == 1) cnt_black++;
+							else if (qipan[i][j] == -1) cnt_white++;
+						}
+					system("cls");
+					jiemian(first);
+					printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n");
+					continue;
 				}
-			break;
+				else if(first==1)
+				{
+					if (cnt_step == 1)
+					{
+						printf("已经不能悔棋了\n");
+						printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n悔棋请输入\"c\"\n");
+						continue;
+					}
+
+					cnt_step -= 1;
+					cnt_black = 0; cnt_white = 0;
+					for (int i = 0; i < 7; i++)
+						for (int j = 0; j < 7; j++)
+						{
+							qipan[i][j] = black_cunpan[cnt_step - 1][i][j];
+							if (qipan[i][j] == 1) cnt_black++;
+							else if (qipan[i][j] == -1) cnt_white++;
+						}
+					system("cls");
+					jiemian(first);
+					printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n");
+					continue;
+				}
+				else if (first == -1)
+				{
+					if (cnt_step == 1)
+					{
+						printf("已经不能悔棋了\n");
+						printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n悔棋请输入\"c\"\n");
+						continue;
+					}
+
+					cnt_step -= 1;
+					cnt_black = 0; cnt_white = 0;
+					for (int i = 0; i < 7; i++)
+						for (int j = 0; j < 7; j++)
+						{
+							qipan[i][j] = white_cunpan[cnt_step - 1][i][j];
+							if (qipan[i][j] == 1) cnt_black++;
+							else if (qipan[i][j] == -1) cnt_white++;
+						}
+					system("cls");
+					jiemian(first);
+					printf("存档请输入\"s\"\n返回主界面请输入\"r\"\n请选择你要移动的棋子:输入格式\"x y\"\n");
+					continue;
+				}
+			
+
+			if (temp[1] != ' ' || !(temp[2] <= '7'&& temp[2] >= '1')) { printf("please retry\n"); continue; }
+			start_x = temp[0] - '0' - 1;
+			start_y = temp[2] - '0' - 1;
+
+			if (qipan[start_x][start_y] == first && decide_num_nextstep(first, start_x, start_y) > 0)
+			{
+				break;
+			}
+			else printf("Please retry.\n");
 		}
-		else printf("Please retry.\n");
+
+		printf("请选择你要移动到的地方   重新选子请输入\"c\"\n");
+
+		while (true)
+		{
+			while (cin.peek() == '\n') getchar();
+
+			char temp[1000] = { '\0' };
+			cin.getline(temp, 1000);
+			if (temp[0] != 'c' && !(temp[0] >= '1' && temp[0] <= '7')) { printf("please retry\n"); continue; }
+			if (temp[0] == 'c') break;
+
+			if (temp[1] != ' ' || !(temp[2] >= '1' && temp[2] <= '7')) { printf("please retry\n"); continue; }
+
+			des_x = temp[0] - '0' - 1;
+			des_y = temp[2] - '0' - 1;
+			//判断1、在棋盘内；2、在十六格内；3、可以落子（目标地点为空）
+			if (decide_des_nextstep(first, start_x, start_y, des_x, des_y))
+			{
+				//16位的情况：
+				if (abs(des_x - start_x) == 2 || abs(des_y - start_y) == 2)
+				{
+					qipan[start_x][start_y] = 0;
+					qipan[des_x][des_y] = first;
+				}
+				//8位的情况：
+				else
+				{
+					qipan[des_x][des_y] = first;
+					if (first == 1) cnt_black++;
+					else cnt_white++;
+				}
+				for (int i = -1; i <= 1; i++)
+				{
+					if (des_x + i < 0 || des_x + i > 6) continue;
+					for (int j = -1; j <= 1; j++)
+					{
+						if ((i == 0 && j == 0) || des_y + j < 0 || des_y + j > 6) continue;
+						if (qipan[des_x + i][des_y + j] == -first)
+						{
+							qipan[des_x + i][des_y + j] = first;
+							if (first == 1) { cnt_black++; cnt_white--; }
+							else { cnt_white++; cnt_black--; }
+						}
+					}
+				}
+				if (first == 1)
+				{
+					for(int i=0;i<7;i++)
+						for (int j = 0; j < 7; j++)
+						{
+							white_cunpan[cnt_step - 1][i][j] = qipan[i][j];
+						}
+				}
+				else
+				{
+					for (int i = 0; i<7; i++)
+						for (int j = 0; j < 7; j++)
+						{
+							black_cunpan[cnt_step][i][j] = qipan[i][j];
+						}
+				}
+				return 0;
+			}
+			else printf("Please retry.\n");
+		}
 	}
 
 }
 
-int double_game(int start,int next)
+
+//双人游戏区
+void double_game(int first)
 {
 	while (true)
 	{
-		system("cls");
-		if (game(start, next) == 1) return 1;
-		if (game(next, start) == 1) return 1;
 		cnt_step++;
+		system("cls");
+		if (game(first) == 1) return;
+		if (decide_win() != 0 ) return;
+		
+
+		if (game(-first) == 1) return;
+		if (decide_win() != 0) return;
 	}
 }
 
 
-int black_game()  //返回0代表继续，返回1代表返回主界面(只返回1)
+
+
+//单人游戏区
+void black_game()  //返回0代表继续，返回1代表返回主界面(只返回1)
 {
 	while (true)
 	{
+		cnt_step++;
 		system("cls");
-		if(game(1, -1)==1) return 1;
+		if(game(1)==1) return;
+		int t = decide_win();
+		if (t == 1)
+		{
+			f3_2(1, 1);
+			return;
+		}
+		else if (t == -1)
+		{
+			f3_2(0, 1);
+			return;
+		}
+
+		
+
 		system("cls");
 		jiemian(-1);
-		Sleep(2000);
-		ai(-1, 1);
-		cnt_step++;
+		Sleep(1000);
+
+		ai(-1);
+		t = decide_win();
+		if (t == 1)
+		{
+			f3_2(1, 1);
+			return;
+		}
+		else if (t == -1)
+		{
+			f3_2(0, 1);
+			return;
+		}
+
+		for (int i = 0; i<7; i++)
+			for (int j = 0; j < 7; j++)
+			{
+				cunpan[cnt_step][i][j] = qipan[i][j];
+			}
 	}
 }
 
-
-int white_game()  //返回0代表继续，返回1代表返回主界面
+void white_game()  //返回0代表继续，返回1代表返回主界面
 {
 	while (true)
 	{
-		system("cls");
-		ai(1, -1);
-		if (game(-1, 1) == 1) return 1;
-		system("cls");
-		jiemian(1);
-		Sleep(2000);
 		cnt_step++;
+		system("cls");
+		jiemian(-1);
+		Sleep(1000);
+		ai(1);
+		int t = decide_win();
+
+		if (t == 1)
+		{
+			f3_2(0, 1);
+			return;
+		}
+		else if (t == -1)
+		{
+			f3_2(1, 1);
+			return;
+		}
+
+		for (int i = 0; i<7; i++)
+			for (int j = 0; j < 7; j++)
+			{
+				cunpan[cnt_step - 1][i][j] = qipan[i][j];
+			}
+		
+		if (game(-1) == 1) return;
+
+		t = decide_win();
+		if (t == 1)
+		{
+			f3_2(0, 1);
+			return;
+		}
+		else if (t == -1)
+		{
+			f3_2(1, 1);
+			return;
+		}
 	}
 }
 
 
-//判断输赢情况,1表示游戏终止，一方胜利；0表示游戏继续
+//判断输赢情况,1表示黑方胜利，-1代表白方胜利；0表示游戏继续
 /*
 输赢的可能;
 1、一方无法落子
@@ -152,7 +314,7 @@ int decide_win()
 	{
 		printf("白方胜利\n");
 		system("pause");
-		return 1;
+		return -1;
 	}
 
 	//2、棋盘完全下满
@@ -160,15 +322,17 @@ int decide_win()
 	{
 		if (cnt_black > cnt_white)
 		{
+			system("cls"); jiemian(1);
 			printf("黑方胜利\n");
 			system("pause");
 			return 1;
 		}
 		if (cnt_white > cnt_black)
 		{
+			system("cls"); jiemian(-1);
 			printf("白方胜利\n");
 			system("pause");
-			return 1;
+			return -1;
 		}
 	}
 
@@ -182,8 +346,8 @@ int decide_win()
 		}
 	if (sum_black == 0)
 	{
-		if (cnt_black > 24) { printf("黑方胜利\n"); system("pause"); return 1; }
-		else { printf("白方胜利\n"); system("pause"); return 1; }
+		if (cnt_black > 24) { system("cls"); jiemian(1); printf("黑方胜利\n"); system("pause"); return 1; }
+		else { system("cls"); jiemian(-1); printf("白方胜利\n"); system("pause"); return -1; }
 	}
 	//白方无法落子
 	int sum_white = 0;
@@ -194,8 +358,8 @@ int decide_win()
 		}
 	if (sum_white == 0)
 	{
-		if (cnt_white > 24) { printf("白方胜利\n"); system("pause"); return 1; }
-		else { printf("黑方胜利\n"); system("pause"); return 1; }
+		if (cnt_white > 24) { system("cls"); jiemian(-1); printf("白方胜利\n"); system("pause"); return -1; }
+		else { system("cls"); jiemian(1); printf("黑方胜利\n"); system("pause"); return 1; }
 	}
 
 
@@ -219,7 +383,7 @@ int decide_num_nextstep(int first, int x, int y)
 	return sum;
 }
 
-//判断对于黑棋或者白棋特定的子，下一步是否可以移动到目标位置。0代表可以移到，1代表不能移到
+//判断对于黑棋或者白棋特定的子，下一步是否可以移动到目标位置。0代表不能移到，1代表可以移到
 int decide_des_nextstep(int first, int x_from, int y_from, int x_to, int y_to)
 {
 	if (x_to < 0 || y_to < 0 || x_to>6 || x_to>6 || (x_to == x_from && y_to == y_from)
